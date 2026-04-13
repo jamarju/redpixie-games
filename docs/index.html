@@ -703,7 +703,7 @@
         );
       }
 
-      function ClockFace({ children, onPM, onClick, onPL, svgRef, roman = false }) {
+      function ClockFace({ children, onPM, onPD, onPL, svgRef, roman = false }) {
         return (
           <svg
             ref={svgRef}
@@ -716,7 +716,7 @@
               display: "block",
             }}
             onPointerMove={onPM}
-            onClick={onClick}
+            onPointerDown={onPD}
             onPointerLeave={onPL}
             role="img"
             aria-label="Clock face"
@@ -1110,17 +1110,26 @@
           setGhostCD(null);
         }, []);
 
-        const onClockClick = useCallback(() => {
-          if (phase === "done" || ghostCD === null) return;
-          if (phase === "minute") {
-            setPlacedMinCD(ghostCD);
-            setPhase("hour");
-            setGhostCD(null);
-          } else if (phase === "hour") {
-            setPlacedHourCD(ghostCD);
+        const placeHandAtPointer = useCallback(
+          (e) => {
+            if (phase === "done") return;
+            e.preventDefault();
+            const raw = getRawCD(e);
+            if (raw === null) return;
+            if (phase === "minute") {
+              const snapped = (Math.round(raw / 30) * 30) % 360;
+              setGhostCD(snapped);
+              setPlacedMinCD(snapped);
+              setPhase("hour");
+              return;
+            }
+
+            setGhostCD(raw);
+            setPlacedHourCD(raw);
             setPhase("done");
-          }
-        }, [ghostCD, phase]);
+          },
+          [getRawCD, phase]
+        );
 
         useEffect(() => {
           if (phase === "done" && placedHourCD !== null && placedMinCD !== null) {
@@ -1200,7 +1209,7 @@
                         roman={roman}
                         svgRef={svgRef}
                         onPM={phase !== "done" ? onPM : undefined}
-                        onClick={phase !== "done" ? onClockClick : undefined}
+                        onPD={phase !== "done" ? placeHandAtPointer : undefined}
                         onPL={phase !== "done" ? onPL : undefined}
                       >
                         {ghostSvgAngle !== null && phase === "minute" ? (
