@@ -89,6 +89,12 @@
         gap: 16px;
       }
 
+      .home-screen {
+        justify-content: flex-start;
+        gap: 10px;
+        padding-top: 2px;
+      }
+
       .game-screen {
         justify-content: flex-start;
         gap: 12px;
@@ -586,6 +592,8 @@
 
       .btn:disabled {
         cursor: default;
+        opacity: 0.45;
+        box-shadow: none !important;
       }
 
       .celebration {
@@ -1299,6 +1307,7 @@
             setDragPointerId(null);
             setActiveHand((current) => {
               if (current === "minute" && !touchedHour) return "hour";
+              if (current === "hour") return "check";
               return current;
             });
           },
@@ -1309,7 +1318,7 @@
 
         const startDrag = useCallback(
           (e) => {
-            if (tWon) return;
+            if (tWon || activeHand === "check") return;
             e.preventDefault();
             const svg = svgRef.current;
             if (svg) {
@@ -1318,19 +1327,21 @@
             setDragPointerId(e.pointerId);
             updateDragAngle(e);
           },
-          [tWon, updateDragAngle]
+          [activeHand, tWon, updateDragAngle]
         );
 
         const cdToSvg = (cd) => cd - 90;
         const hHandSvg = cdToSvg(placedHourCD);
         const mHandSvg = cdToSvg(placedMinCD);
-        const activeSvgAngle = activeHand === "minute" ? mHandSvg : hHandSvg;
+        const activeSvgAngle = activeHand === "minute" ? mHandSvg : activeHand === "hour" ? hHandSvg : null;
 
-        const phaseColor = activeHand === "minute" ? "#00B894" : "#6C5CE7";
+        const phaseColor = activeHand === "minute" ? "#00B894" : activeHand === "hour" ? "#6C5CE7" : "#00B894";
         const phaseLabel =
           activeHand === "minute"
             ? "👆 Drag the green handle, then switch hands whenever you want to adjust again."
-            : "👆 Drag the purple handle. You can switch back to the minute hand any time.";
+            : activeHand === "hour"
+              ? "👆 Drag the purple handle. You can switch back to the minute hand any time."
+              : "✅ Both hands are set. Press Check Clock, or tap a hand button to adjust again.";
 
         const checkPlacement = useCallback(() => {
           const correctHourCD = ((time.h % 12) * 30 + time.m * 0.5) % 360;
@@ -1437,7 +1448,13 @@
                         Hour Hand
                       </Btn>
 
-                      <Btn big onClick={checkPlacement} color="#00B894" dis={!touchedMinute || !touchedHour}>
+                      <Btn
+                        big
+                        onClick={checkPlacement}
+                        color="#00B894"
+                        dis={!touchedMinute || !touchedHour}
+                        sel={touchedMinute && touchedHour && activeHand === "check"}
+                      >
                         {result === "wrong" ? "Check Again" : "Check Clock"}
                       </Btn>
                     </div>
@@ -1849,7 +1866,7 @@
       function ClockMenu({ kidName, score, streak, onBack, onRead, onSet }) {
         return (
           <div className="app-shell">
-            <main className="screen">
+            <main className="screen home-screen">
               <section className="panel menu-panel">
                 <div className="hero-turtle" aria-hidden="true">
                   🐢
@@ -1916,7 +1933,7 @@
         if (!mode) {
           return (
             <div className="app-shell">
-              <main className="screen">
+              <main className="screen home-screen">
                 <section className="panel menu-panel">
                   <div className="hero-turtle" aria-hidden="true">
                     ✨
