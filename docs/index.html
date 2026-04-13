@@ -1423,16 +1423,10 @@
                     {phaseLabel ? <div className="hint" style={{ color: phaseColor }}>{phaseLabel}</div> : null}
 
                     <div style={{ display: "grid", gap: 10 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center" }}>
-                        1. Set the minute hand
-                      </div>
                       <Btn onClick={() => setActiveHand("minute")} sel={activeHand === "minute"} color="#00B894" big>
                         Minute Hand
                       </Btn>
 
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center", marginTop: 6 }}>
-                        2. Set the hour hand
-                      </div>
                       <Btn
                         onClick={() => setActiveHand("hour")}
                         sel={activeHand === "hour"}
@@ -1443,16 +1437,9 @@
                         Hour Hand
                       </Btn>
 
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center", marginTop: 6 }}>
-                        3. Check your clock
-                      </div>
                       <Btn big onClick={checkPlacement} color="#00B894" dis={!touchedMinute || !touchedHour}>
                         {result === "wrong" ? "Check Again" : "Check Clock"}
                       </Btn>
-                    </div>
-
-                    <div className="score-line" style={{ textAlign: "center" }}>
-                      After step 2, you can tap either hand button again and keep adjusting before step 3.
                     </div>
 
                     <FeedbackBanner result={result} msg={msg} />
