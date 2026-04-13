@@ -874,7 +874,7 @@
         return (
           <svg
             ref={svgRef}
-            viewBox="0 0 300 300"
+            viewBox="-28 -28 356 356"
             style={{
               width: "100%",
               maxWidth: 520,
@@ -901,15 +901,6 @@
             </defs>
             <circle cx={CX} cy={CY} r={R + 4} fill="#6C5CE7" filter="url(#sh)" />
             <circle cx={CX} cy={CY} r={R} fill="url(#cg)" />
-            <circle
-              cx={CX}
-              cy={CY}
-              r={R + 12}
-              fill="none"
-              stroke="rgba(108, 92, 231, 0.18)"
-              strokeWidth="10"
-              strokeDasharray="4 14"
-            />
             {[...Array(60)].map((_, i) => {
               const a = ((i * 6 - 90) * Math.PI) / 180;
               const five = i % 5 === 0;
@@ -1341,16 +1332,6 @@
             ? "👆 Drag the green handle, then switch hands whenever you want to adjust again."
             : "👆 Drag the purple handle. You can switch back to the minute hand any time.";
 
-        const resetHands = useCallback(() => {
-          setPlacedHourCD(0);
-          setPlacedMinCD(0);
-          setTouchedHour(false);
-          setTouchedMinute(false);
-          setActiveHand("minute");
-          setResult(null);
-          setMsg("");
-        }, []);
-
         const checkPlacement = useCallback(() => {
           const correctHourCD = ((time.h % 12) * 30 + time.m * 0.5) % 360;
           const correctMinCD = (time.m * 6) % 360;
@@ -1441,27 +1422,41 @@
 
                     {phaseLabel ? <div className="hint" style={{ color: phaseColor }}>{phaseLabel}</div> : null}
 
-                    <div className="button-row">
-                      <Btn onClick={() => setActiveHand("minute")} sel={activeHand === "minute"} color="#00B894">
+                    <div style={{ display: "grid", gap: 10 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center" }}>
+                        1. Set the minute hand
+                      </div>
+                      <Btn onClick={() => setActiveHand("minute")} sel={activeHand === "minute"} color="#00B894" big>
                         Minute Hand
                       </Btn>
-                      <Btn onClick={() => setActiveHand("hour")} sel={activeHand === "hour"} color="#6C5CE7">
+
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center", marginTop: 6 }}>
+                        2. Set the hour hand
+                      </div>
+                      <Btn
+                        onClick={() => setActiveHand("hour")}
+                        sel={activeHand === "hour"}
+                        color="#6C5CE7"
+                        big
+                        dis={!touchedMinute}
+                      >
                         Hour Hand
+                      </Btn>
+
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--muted)", textAlign: "center", marginTop: 6 }}>
+                        3. Check your clock
+                      </div>
+                      <Btn big onClick={checkPlacement} color="#00B894" dis={!touchedMinute || !touchedHour}>
+                        {result === "wrong" ? "Check Again" : "Check Clock"}
                       </Btn>
                     </div>
 
                     <div className="score-line" style={{ textAlign: "center" }}>
-                      Switch between the two hand buttons as many times as you need before checking.
+                      After step 2, you can tap either hand button again and keep adjusting before step 3.
                     </div>
 
                     <FeedbackBanner result={result} msg={msg} />
                     <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                      <Btn big onClick={checkPlacement} color="#00B894">
-                        {result === "wrong" ? "Check Again" : "Check Clock"}
-                      </Btn>
-                      <Btn big onClick={resetHands} color="#6C5CE7">
-                        Reset Hands
-                      </Btn>
                       {result === "correct" ? (
                         <Btn big onClick={go} color="#00B894">
                           Next ➡️
