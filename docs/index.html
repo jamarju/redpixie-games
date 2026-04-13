@@ -1,0 +1,1376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Redpixie Clock Games is a full-screen clock-learning game for kids."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%90%A2%3C/text%3E%3C/svg%3E"
+    />
+    <title>Redpixie Clock Games</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <style>
+      :root {
+        --bg-top: #dfe6e9;
+        --bg-mid: #f5f0ff;
+        --bg-bottom: #e8f8f5;
+        --ink: #1f2933;
+        --muted: #5f6c76;
+        --violet: #6c5ce7;
+        --violet-soft: #a29bfe;
+        --mint: #00b894;
+        --mint-soft: #55efc4;
+        --rose: #ff7675;
+        --gold: #fdcb6e;
+        --panel: rgba(255, 255, 255, 0.88);
+        --shadow: 0 16px 40px rgba(65, 56, 128, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      #root {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family:
+          "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 36%),
+          linear-gradient(160deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-bottom) 100%);
+        overflow-x: hidden;
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding:
+          max(18px, env(safe-area-inset-top))
+          max(16px, env(safe-area-inset-right))
+          max(18px, env(safe-area-inset-bottom))
+          max(16px, env(safe-area-inset-left));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .screen {
+        width: min(100%, 1200px);
+        min-height: calc(100vh - 36px);
+        min-height: calc(100dvh - 36px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
+
+      .game-screen {
+        justify-content: flex-start;
+        gap: 12px;
+      }
+
+      .top-bar {
+        width: min(100%, 760px);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .top-bar-spacer {
+        flex: 1;
+        text-align: center;
+        font-size: 15px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .back-button {
+        border: 0;
+        background: transparent;
+        font-size: 28px;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .panel {
+        width: min(100%, 760px);
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        padding: clamp(18px, 3vw, 28px);
+      }
+
+      .menu-panel {
+        display: grid;
+        gap: 20px;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .game-layout {
+        width: min(100%, 1160px);
+        display: grid;
+        grid-template-columns: minmax(320px, 480px) minmax(280px, 1fr);
+        align-items: center;
+        gap: clamp(18px, 3vw, 36px);
+      }
+
+      .game-left {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+      }
+
+      .game-right {
+        display: grid;
+        gap: 14px;
+        align-content: center;
+      }
+
+      .compact-panel {
+        width: 100%;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        padding: clamp(16px, 2vw, 22px);
+      }
+
+      .title {
+        margin: 0;
+        color: var(--violet);
+        font-size: clamp(32px, 5vw, 52px);
+        line-height: 1.05;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(17px, 2.2vw, 22px);
+      }
+
+      .hero-turtle {
+        font-size: clamp(64px, 10vw, 92px);
+        line-height: 1;
+      }
+
+      .menu-actions {
+        width: 100%;
+        display: grid;
+        gap: 16px;
+      }
+
+      .name-card {
+        width: 100%;
+        display: grid;
+        gap: 14px;
+        text-align: center;
+      }
+
+      .name-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .name-input {
+        flex: 1 1 260px;
+        min-width: 220px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 2px solid rgba(108, 92, 231, 0.26);
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--ink);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .name-input:focus {
+        outline: none;
+        border-color: var(--violet);
+        box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.12);
+      }
+
+      .mode-button {
+        width: 100%;
+        padding: 24px 28px;
+        border-radius: 24px;
+        color: #fff;
+        cursor: pointer;
+        border: 0;
+        text-align: left;
+        font-weight: 800;
+        font-size: clamp(21px, 2.7vw, 28px);
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
+        transition: transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .mode-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 38px rgba(0, 0, 0, 0.14);
+      }
+
+      .mode-button.read {
+        background: linear-gradient(135deg, var(--violet), var(--violet-soft));
+      }
+
+      .mode-button.set {
+        background: linear-gradient(135deg, var(--mint), var(--mint-soft));
+      }
+
+      .mode-button small {
+        display: block;
+        margin-top: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        opacity: 0.95;
+      }
+
+      .mode-heading {
+        margin: 0;
+        color: var(--violet);
+        font-size: clamp(28px, 4vw, 40px);
+        text-align: center;
+      }
+
+      .prompt-card {
+        text-align: center;
+        background: linear-gradient(135deg, var(--violet), var(--violet-soft));
+        padding: 12px 28px;
+        border-radius: 16px;
+        color: #fff;
+        font-weight: 800;
+        font-size: clamp(20px, 3vw, 28px);
+        box-shadow: 0 10px 24px rgba(108, 92, 231, 0.24);
+      }
+
+      .prompt-card small {
+        display: block;
+        margin-top: 4px;
+        opacity: 0.88;
+        font-size: 15px;
+      }
+
+      .hint {
+        font-size: 16px;
+        color: var(--violet);
+        font-weight: 800;
+        text-align: center;
+        max-width: 460px;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 10px 18px;
+        border-radius: 14px;
+        border: 2px dashed currentColor;
+      }
+
+      .clock-frame {
+        width: min(100%, 440px);
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 28px;
+        padding: clamp(14px, 2vw, 24px);
+        box-shadow: 0 10px 28px rgba(108, 92, 231, 0.12);
+      }
+
+      .choices {
+        width: min(100%, 760px);
+        display: grid;
+        gap: 16px;
+      }
+
+      .choice-group {
+        text-align: center;
+      }
+
+      .choice-label {
+        margin-bottom: 8px;
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--muted);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .feedback {
+        padding: 14px 24px;
+        border-radius: 18px;
+        text-align: center;
+        font-weight: 800;
+        font-size: clamp(18px, 2.6vw, 22px);
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+        max-width: 520px;
+      }
+
+      .feedback.correct {
+        background: linear-gradient(135deg, var(--mint), var(--mint-soft));
+      }
+
+      .feedback.wrong {
+        background: linear-gradient(135deg, var(--rose), #fab1a0);
+      }
+
+      .score-line {
+        font-size: 18px;
+        color: var(--muted);
+      }
+
+      .track-wrap {
+        width: min(100%, 760px);
+        position: relative;
+      }
+
+      .track {
+        position: relative;
+        height: 54px;
+        background: linear-gradient(to right, #e8f8f5, #ffeaa7);
+        border-radius: 999px;
+        border: 3px solid #dfe6e9;
+        overflow: visible;
+        display: flex;
+        align-items: center;
+      }
+
+      .stone {
+        position: absolute;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .speech {
+        position: absolute;
+        bottom: calc(100% + 4px);
+        transform: translateX(-40%);
+        margin-bottom: 2px;
+        background: #fff;
+        border: 2px solid var(--mint);
+        border-radius: 14px;
+        padding: 5px 12px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #2d3436;
+        white-space: nowrap;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        z-index: 5;
+        animation: speech-pop 0.3s ease-out;
+      }
+
+      .speech-arrow {
+        position: absolute;
+        bottom: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 7px solid var(--mint);
+      }
+
+      .turtle {
+        position: absolute;
+        transform: translateX(-50%);
+        font-size: 36px;
+        z-index: 3;
+        transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .win-banner {
+        text-align: center;
+        margin-top: 8px;
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--mint);
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 17px;
+        font-weight: 800;
+        border-width: 3px;
+        border-style: solid;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+        min-width: 80px;
+        background: #fff;
+        color: #2d3436;
+      }
+
+      .btn:hover:not(:disabled) {
+        transform: scale(1.03);
+      }
+
+      .btn.big {
+        padding: 16px 32px;
+        min-width: 200px;
+        font-size: 20px;
+      }
+
+      .btn:disabled {
+        cursor: default;
+      }
+
+      .celebration {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 20;
+      }
+
+      .confetti {
+        position: absolute;
+        opacity: 0;
+        animation: confetti-fall 1.7s ease-out forwards;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @keyframes speech-pop {
+        0% {
+          transform: translateX(-40%) scale(0);
+          opacity: 0;
+        }
+
+        50% {
+          transform: translateX(-40%) scale(1.15);
+          opacity: 1;
+        }
+
+        100% {
+          transform: translateX(-40%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes confetti-fall {
+        0% {
+          opacity: 1;
+          transform: translateY(0) scale(0.5) rotate(0deg);
+        }
+
+        30% {
+          opacity: 1;
+          transform: translateY(40px) scale(1.2) rotate(90deg);
+        }
+
+        100% {
+          opacity: 0;
+          transform: translateY(260px) scale(0.8) rotate(var(--spin));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .screen {
+          min-height: calc(100vh - 22px);
+          min-height: calc(100dvh - 22px);
+          justify-content: flex-start;
+          padding-top: 4px;
+          padding-bottom: 6px;
+        }
+
+        .panel {
+          border-radius: 22px;
+        }
+
+        .clock-frame {
+          width: 100%;
+          padding: 10px;
+        }
+
+        .speech {
+          max-width: min(78vw, 240px);
+          white-space: normal;
+          text-align: center;
+        }
+
+        .mode-button {
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 920px) {
+        .game-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .game-right {
+          width: min(100%, 760px);
+        }
+      }
+
+      @media (max-height: 820px) and (min-width: 921px) {
+        .screen {
+          gap: 10px;
+        }
+
+        .clock-frame {
+          width: min(100%, 380px);
+          padding: 12px;
+        }
+
+        .track {
+          height: 48px;
+        }
+
+        .mode-heading {
+          font-size: 32px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useState, useRef, useCallback, useEffect } = React;
+
+      const CX = 150;
+      const CY = 150;
+      const R = 130;
+      const FIVES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+      const ML = {
+        0: "o'clock",
+        5: "5 past",
+        10: "10 past",
+        15: "quarter past",
+        20: "20 past",
+        25: "25 past",
+        30: "half past",
+        35: "25 to",
+        40: "20 to",
+        45: "quarter to",
+        50: "10 to",
+        55: "5 to",
+      };
+      const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+      const CHEERS = [
+        "🌟 Amazing!",
+        "🎉 You nailed it!",
+        "🏆 Superstar!",
+        "✨ Brilliant!",
+        "🦄 Magical!",
+        "🎊 Perfect!",
+        "🌈 Wonderful!",
+        "🚀 Awesome!",
+        "💎 Incredible!",
+        "🎯 Spot on!",
+        "👑 You rock!",
+        "🍭 Sweet!",
+        "🐱 Purrfect!",
+        "🌸 Beautiful!",
+        "🐾 Mew-nificent!",
+        "😺 Meow-velous!",
+        "😻 Purrr! You got it!",
+        "🐱 Kitty says YAY!",
+      ];
+      const OOPS = [
+        "Almost! Try again 💪",
+        "So close! 🌟",
+        "Not quite, you can do it 😊",
+        "One more try! 🍀",
+      ];
+      const TURTLE_FWD = [
+        "Yay! Nom nom closer!",
+        "Wheee! 🥬",
+        "I can smell it!",
+        "Let's gooo!",
+        "Faster than a hare!",
+        "Woohoo!",
+        "Leafy lunch, here I come!",
+        "One step closer!",
+        "You're the best!",
+        "Turbo turtle mode!",
+        "My tummy is happy!",
+        "Almost there, friend!",
+      ];
+      const TURTLE_BACK = [
+        "Oopsie! Wrong way...",
+        "Oh no, my lettuce!",
+        "Wait, come back! 🥺",
+        "I tripped on a pebble...",
+        "Noooo my snack!",
+        "*sad turtle noises*",
+        "My little legs are tired...",
+        "Don't worry, we got this!",
+      ];
+      const TURTLE_WIN = [
+        "🎉 YUMMY! Thank you!!",
+        "🥬 BEST. MEAL. EVER!",
+        "🎊 I love you, friend!",
+        "✨ That was DEE-LICIOUS!",
+      ];
+      const STEPS = 8;
+
+      const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+      const rP = (arr) => arr[rand(0, arr.length - 1)];
+      const sh = (arr) => {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = rand(0, i);
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      };
+      const rTime = () => ({ h: rand(1, 12), m: FIVES[rand(0, 11)] });
+
+      function tTxt(h, m) {
+        if (m === 0) return `${h} o'clock`;
+        if (m <= 30) return `${ML[m]} ${h}`;
+        return `${ML[m]} ${h === 12 ? 1 : h + 1}`;
+      }
+
+      function digi(h, m) {
+        return `${h}:${String(m).padStart(2, "0")}`;
+      }
+
+      function hDeg(h, m) {
+        return (h % 12) * 30 + m * 0.5 - 90;
+      }
+
+      function mDeg(m) {
+        return m * 6 - 90;
+      }
+
+      function angDiff(a, b) {
+        const d = (((a - b) % 360) + 360) % 360;
+        return d > 180 ? 360 - d : d;
+      }
+
+      function Hand({ angle, len, color, w, op = 1 }) {
+        const r = (angle * Math.PI) / 180;
+        return (
+          <line
+            x1={CX}
+            y1={CY}
+            x2={CX + len * Math.cos(r)}
+            y2={CY + len * Math.sin(r)}
+            stroke={color}
+            strokeWidth={w}
+            strokeLinecap="round"
+            opacity={op}
+          />
+        );
+      }
+
+      function ClockFace({ children, onPM, onClick, onPL, svgRef, roman = false }) {
+        return (
+          <svg
+            ref={svgRef}
+            viewBox="0 0 300 300"
+            style={{
+              width: "100%",
+              maxWidth: 520,
+              touchAction: "none",
+              cursor: onPM ? "crosshair" : "default",
+              display: "block",
+            }}
+            onPointerMove={onPM}
+            onClick={onClick}
+            onPointerLeave={onPL}
+            role="img"
+            aria-label="Clock face"
+          >
+            <defs>
+              <radialGradient id="cg" cx="40%" cy="35%">
+                <stop offset="0%" stopColor="#fff" />
+                <stop offset="100%" stopColor="#F0EDFF" />
+              </radialGradient>
+              <filter id="sh">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.15" />
+              </filter>
+            </defs>
+            <circle cx={CX} cy={CY} r={R + 4} fill="#6C5CE7" filter="url(#sh)" />
+            <circle cx={CX} cy={CY} r={R} fill="url(#cg)" />
+            {[...Array(60)].map((_, i) => {
+              const a = ((i * 6 - 90) * Math.PI) / 180;
+              const five = i % 5 === 0;
+              return (
+                <line
+                  key={i}
+                  x1={CX + (five ? R - 16 : R - 8) * Math.cos(a)}
+                  y1={CY + (five ? R - 16 : R - 8) * Math.sin(a)}
+                  x2={CX + (R - 3) * Math.cos(a)}
+                  y2={CY + (R - 3) * Math.sin(a)}
+                  stroke={five ? "#6C5CE7" : "#D0C9F0"}
+                  strokeWidth={five ? 2.5 : 1}
+                />
+              );
+            })}
+            {[...Array(12)].map((_, i) => {
+              const n = i + 1;
+              const a = ((n * 30 - 90) * Math.PI) / 180;
+              return (
+                <text
+                  key={n}
+                  x={CX + (R - 30) * Math.cos(a)}
+                  y={CY + (R - 30) * Math.sin(a)}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={roman ? "15" : "19"}
+                  fontWeight="bold"
+                  fill="#2D3436"
+                  style={{
+                    fontFamily: roman ? "Georgia, serif" : '"Avenir Next", Avenir, system-ui, sans-serif',
+                    userSelect: "none",
+                  }}
+                >
+                  {roman ? ROMAN[n] : n}
+                </text>
+              );
+            })}
+            {children}
+            <circle cx={CX} cy={CY} r="6" fill="#2D3436" />
+          </svg>
+        );
+      }
+
+      function Confetti() {
+        const e = ["🌟", "⭐", "✨", "🎉", "🎊", "💫", "🌈", "🦄", "💎", "🎯", "🍭", "🌸", "🐢"];
+        return (
+          <div className="celebration" aria-hidden="true">
+            {[...Array(14)].map((_, i) => (
+              <div
+                key={i}
+                className="confetti"
+                style={{
+                  left: `${rand(5, 95)}%`,
+                  top: `${rand(-10, 30)}%`,
+                  fontSize: rand(18, 34),
+                  animationDelay: `${Math.random() * 0.4}s`,
+                  ["--spin"]: `${rand(-200, 200)}deg`,
+                }}
+              >
+                {rP(e)}
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      function TurtleTrack({ pos, speech, won, dir }) {
+        const pct = Math.min(pos / STEPS, 1) * 100;
+        const dots = [];
+        for (let i = 0; i <= STEPS; i += 1) dots.push(i);
+
+        return (
+          <div className="track-wrap">
+            {speech ? (
+              <div className="speech" style={{ left: `calc(${pct}% - 10px)` }}>
+                {speech}
+                <div className="speech-arrow" />
+              </div>
+            ) : null}
+            <div className="track">
+              {dots.map((i) => (
+                <div
+                  key={i}
+                  className="stone"
+                  style={{
+                    left: `${(i / STEPS) * 100}%`,
+                    width: i === STEPS ? 28 : 10,
+                    height: i === STEPS ? 28 : 10,
+                    background: i === STEPS ? "transparent" : "#b2dfdb",
+                    fontSize: i === STEPS ? 28 : 10,
+                    zIndex: 1,
+                  }}
+                >
+                  {i === STEPS ? "🥬" : ""}
+                </div>
+              ))}
+              <div
+                className="turtle"
+                style={{
+                  left: `${pct}%`,
+                  transform: `translateX(-50%) scaleX(${dir === "back" ? 1 : -1})`,
+                  filter: won ? "drop-shadow(0 0 8px gold)" : "none",
+                }}
+              >
+                {won ? "🥳" : "🐢"}
+              </div>
+            </div>
+            {won ? <div className="win-banner">🎉 The turtle made it! 🎉</div> : null}
+          </div>
+        );
+      }
+
+      function Btn({ children, onClick, sel, ok, bad, dis, big, color = "#6C5CE7" }) {
+        const bg = ok ? "#00B894" : bad ? "#FF7675" : sel ? "#A29BFE" : "white";
+        const tc = ok || bad || sel ? "white" : "#2D3436";
+        const bc = ok ? "#00B894" : bad ? "#FF7675" : color;
+        return (
+          <button
+            type="button"
+            className={`btn${big ? " big" : ""}`}
+            onClick={onClick}
+            disabled={dis}
+            style={{
+              borderColor: bc,
+              background: bg,
+              color: tc,
+              boxShadow: sel ? "0 2px 10px rgba(108,92,231,0.3)" : "none",
+              opacity: dis && !ok && !bad ? 0.6 : 1,
+              transform: sel ? "scale(1.05)" : "scale(1)",
+            }}
+          >
+            {children}
+          </button>
+        );
+      }
+
+      function FeedbackBanner({ result, msg }) {
+        if (!msg) return null;
+        return <div className={`feedback ${result}`}>{msg}</div>;
+      }
+
+      function ReadMode({ onBack, score, setScore, streak, setStreak }) {
+        const [time, setTime] = useState(rTime);
+        const [roman, setRoman] = useState(() => Math.random() < 0.5);
+        const [hO, setHO] = useState([]);
+        const [mO, setMO] = useState([]);
+        const [selH, setSelH] = useState(null);
+        const [selM, setSelM] = useState(null);
+        const [result, setResult] = useState(null);
+        const [msg, setMsg] = useState("");
+        const [tPos, setTPos] = useState(0);
+        const [tSpeech, setTSpeech] = useState("");
+        const [tWon, setTWon] = useState(false);
+        const [tDir, setTDir] = useState("fwd");
+
+        const go = useCallback(() => {
+          const t = rTime();
+          setTime(t);
+          const spokenH = t.m > 30 ? (t.h === 12 ? 1 : t.h + 1) : t.h;
+          const wh = sh([...Array(12)].map((_, i) => i + 1).filter((x) => x !== spokenH)).slice(0, 2);
+          setHO(sh([spokenH, ...wh]));
+          const wm = sh(FIVES.filter((x) => x !== t.m)).slice(0, 2);
+          setMO(sh([t.m, ...wm]));
+          setSelH(null);
+          setSelM(null);
+          setResult(null);
+          setMsg("");
+          setRoman(Math.random() < 0.5);
+        }, []);
+
+        const reset = useCallback(() => {
+          setTPos(0);
+          setTSpeech("");
+          setTWon(false);
+          setTDir("fwd");
+          go();
+        }, [go]);
+
+        useEffect(() => {
+          go();
+        }, [go]);
+
+        useEffect(() => {
+          if (selH !== null && selM !== null && result === null) {
+            const spokenH = time.m > 30 ? (time.h === 12 ? 1 : time.h + 1) : time.h;
+            const timer = window.setTimeout(() => {
+              if (selH === spokenH && selM === time.m) {
+                setResult("correct");
+                setMsg(rP(CHEERS));
+                setScore((s) => s + 1);
+                setStreak((s) => s + 1);
+                setTDir("fwd");
+                setTPos((p) => {
+                  const np = Math.min(p + 1, STEPS);
+                  if (np >= STEPS) setTWon(true);
+                  return np;
+                });
+                setTSpeech(rP(TURTLE_FWD));
+              } else {
+                setResult("wrong");
+                setMsg(`${rP(OOPS)} — It was ${tTxt(time.h, time.m)}`);
+                setStreak(0);
+                setTDir("back");
+                setTPos((p) => Math.max(p - 1, 0));
+                setTSpeech(rP(TURTLE_BACK));
+              }
+            }, 500);
+            return () => window.clearTimeout(timer);
+          }
+          return undefined;
+        }, [result, selH, selM, setScore, setStreak, time.h, time.m]);
+
+        return (
+          <div className="app-shell">
+            <main className="screen game-screen">
+              <div className="top-bar">
+                <button type="button" className="back-button" onClick={onBack} aria-label="Go back">
+                  ⬅️
+                </button>
+                <div className="top-bar-spacer">⭐ {score} | 🔥 {streak} streak</div>
+              </div>
+
+              <TurtleTrack pos={tPos} speech={tSpeech} won={tWon} dir={tDir} />
+
+              {tWon ? (
+                <div className="panel menu-panel">
+                  <div style={{ fontSize: 18, color: "#00B894", fontWeight: 800 }}>{rP(TURTLE_WIN)}</div>
+                  <Btn big onClick={reset} color="#00B894">
+                    🐢 New Journey!
+                  </Btn>
+                </div>
+              ) : (
+                <div className="game-layout">
+                  <section className="game-left">
+                    <h1 className="mode-heading">🕐 What time is it?</h1>
+                    <div className="clock-frame">
+                      <ClockFace roman={roman}>
+                        <Hand angle={hDeg(time.h, time.m)} len={65} color="#6C5CE7" w={7} />
+                        <Hand angle={mDeg(time.m)} len={95} color="#00B894" w={4} />
+                      </ClockFace>
+                    </div>
+                  </section>
+
+                  <section className="game-right compact-panel">
+                    <div className="choices">
+                      <div className="choice-group">
+                        <div className="choice-label">
+                          <span style={{ color: "#6C5CE7" }}>●</span> Hour:
+                        </div>
+                        <div className="button-row">
+                          {(() => {
+                            const spokenH = time.m > 30 ? (time.h === 12 ? 1 : time.h + 1) : time.h;
+                            return hO.map((h) => (
+                              <Btn
+                                key={h}
+                                onClick={() => !result && setSelH(h)}
+                                sel={selH === h && !result}
+                                ok={result && h === spokenH}
+                                bad={result === "wrong" && selH === h && h !== spokenH}
+                                dis={!!result}
+                              >
+                                {h}
+                              </Btn>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+
+                      <div className="choice-group">
+                        <div className="choice-label">
+                          <span style={{ color: "#00B894" }}>●</span> Minutes:
+                        </div>
+                        <div className="button-row">
+                          {mO.map((m) => (
+                            <Btn
+                              key={m}
+                              onClick={() => !result && setSelM(m)}
+                              sel={selM === m && !result}
+                              ok={result && m === time.m}
+                              bad={result === "wrong" && selM === m && m !== time.m}
+                              dis={!!result}
+                            >
+                              {ML[m]}
+                            </Btn>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <FeedbackBanner result={result} msg={msg} />
+                    {result ? (
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <Btn big onClick={go} color="#00B894">
+                          Next ➡️
+                        </Btn>
+                      </div>
+                    ) : null}
+                  </section>
+
+                  {result === "correct" ? <Confetti /> : null}
+                </div>
+              )}
+            </main>
+          </div>
+        );
+      }
+
+      function SetMode({ onBack, score, setScore, streak, setStreak }) {
+        const [time, setTime] = useState(rTime);
+        const [roman, setRoman] = useState(() => Math.random() < 0.5);
+        const [phase, setPhase] = useState("minute");
+        const [placedHourCD, setPlacedHourCD] = useState(null);
+        const [placedMinCD, setPlacedMinCD] = useState(null);
+        const [ghostCD, setGhostCD] = useState(null);
+        const [result, setResult] = useState(null);
+        const [msg, setMsg] = useState("");
+        const [tPos, setTPos] = useState(0);
+        const [tSpeech, setTSpeech] = useState("");
+        const [tWon, setTWon] = useState(false);
+        const [tDir, setTDir] = useState("fwd");
+        const svgRef = useRef(null);
+
+        const go = useCallback(() => {
+          const t = rTime();
+          setTime(t);
+          setPhase("minute");
+          setPlacedHourCD(null);
+          setPlacedMinCD(null);
+          setGhostCD(null);
+          setResult(null);
+          setMsg("");
+          setRoman(Math.random() < 0.5);
+        }, []);
+
+        const reset = useCallback(() => {
+          setTPos(0);
+          setTSpeech("");
+          setTWon(false);
+          setTDir("fwd");
+          go();
+        }, [go]);
+
+        useEffect(() => {
+          go();
+        }, [go]);
+
+        const getRawCD = useCallback((e) => {
+          const svg = svgRef.current;
+          if (!svg) return null;
+          const rect = svg.getBoundingClientRect();
+          const sc = 300 / rect.width;
+          const mx = (e.clientX - rect.left) * sc;
+          const my = (e.clientY - rect.top) * sc;
+          const dx = mx - CX;
+          const dy = my - CY;
+          if (Math.sqrt(dx * dx + dy * dy) < 20) return null;
+          const raw = (Math.atan2(dy, dx) * 180) / Math.PI;
+          return (((raw + 90) % 360) + 360) % 360;
+        }, []);
+
+        const onPM = useCallback(
+          (e) => {
+            if (phase === "done") return;
+            const raw = getRawCD(e);
+            if (raw === null) return;
+            if (phase === "minute") {
+              setGhostCD((Math.round(raw / 30) * 30) % 360);
+            } else {
+              setGhostCD(raw);
+            }
+          },
+          [getRawCD, phase]
+        );
+
+        const onPL = useCallback(() => {
+          setGhostCD(null);
+        }, []);
+
+        const onClockClick = useCallback(() => {
+          if (phase === "done" || ghostCD === null) return;
+          if (phase === "minute") {
+            setPlacedMinCD(ghostCD);
+            setPhase("hour");
+            setGhostCD(null);
+          } else if (phase === "hour") {
+            setPlacedHourCD(ghostCD);
+            setPhase("done");
+          }
+        }, [ghostCD, phase]);
+
+        useEffect(() => {
+          if (phase === "done" && placedHourCD !== null && placedMinCD !== null) {
+            const timer = window.setTimeout(() => {
+              const correctHourCD = ((time.h % 12) * 30 + time.m * 0.5) % 360;
+              const correctMinCD = (time.m * 6) % 360;
+              const hourOk = angDiff(placedHourCD, correctHourCD) <= 7.5;
+              const minOk = angDiff(placedMinCD, correctMinCD) < 1;
+
+              if (hourOk && minOk) {
+                setResult("correct");
+                setMsg(rP(CHEERS));
+                setScore((s) => s + 1);
+                setStreak((s) => s + 1);
+                setTDir("fwd");
+                setTPos((p) => {
+                  const np = Math.min(p + 1, STEPS);
+                  if (np >= STEPS) setTWon(true);
+                  return np;
+                });
+                setTSpeech(rP(TURTLE_FWD));
+              } else {
+                const hints = [];
+                if (!hourOk) hints.push(`the hour hand should be closer to ${time.h}`);
+                if (!minOk) hints.push(`the minutes should be ${ML[time.m]}`);
+                setResult("wrong");
+                setMsg(`${rP(OOPS)} — ${hints.join(" and ")}`);
+                setStreak(0);
+                setTDir("back");
+                setTPos((p) => Math.max(p - 1, 0));
+                setTSpeech(rP(TURTLE_BACK));
+              }
+            }, 400);
+            return () => window.clearTimeout(timer);
+          }
+          return undefined;
+        }, [phase, placedHourCD, placedMinCD, setScore, setStreak, time.h, time.m]);
+
+        const cdToSvg = (cd) => cd - 90;
+        const ghostSvgAngle = ghostCD !== null ? cdToSvg(ghostCD) : null;
+        const hHandSvg = placedHourCD !== null ? cdToSvg(placedHourCD) : null;
+        const mHandSvg = placedMinCD !== null ? cdToSvg(placedMinCD) : null;
+
+        const phaseColor = phase === "minute" ? "#00B894" : "#6C5CE7";
+        const phaseLabel =
+          phase === "minute"
+            ? "👆 Click on the clock to place the MINUTE hand"
+            : phase === "hour"
+              ? "👆 Now click to place the HOUR hand"
+              : "";
+
+        return (
+          <div className="app-shell">
+            <main className="screen game-screen">
+              <div className="top-bar">
+                <button type="button" className="back-button" onClick={onBack} aria-label="Go back">
+                  ⬅️
+                </button>
+                <div className="top-bar-spacer">⭐ {score} | 🔥 {streak} streak</div>
+              </div>
+
+              <TurtleTrack pos={tPos} speech={tSpeech} won={tWon} dir={tDir} />
+
+              {tWon ? (
+                <div className="panel menu-panel">
+                  <div style={{ fontSize: 18, color: "#00B894", fontWeight: 800 }}>{rP(TURTLE_WIN)}</div>
+                  <Btn big onClick={reset} color="#00B894">
+                    🐢 New Journey!
+                  </Btn>
+                </div>
+              ) : (
+                <div className="game-layout">
+                  <section className="game-left">
+                    <h1 className="mode-heading">⏰ Set the clock!</h1>
+                    <div className="clock-frame">
+                      <ClockFace
+                        roman={roman}
+                        svgRef={svgRef}
+                        onPM={phase !== "done" ? onPM : undefined}
+                        onClick={phase !== "done" ? onClockClick : undefined}
+                        onPL={phase !== "done" ? onPL : undefined}
+                      >
+                        {ghostSvgAngle !== null && phase === "minute" ? (
+                          <Hand angle={ghostSvgAngle} len={95} color="#00B894" w={4} op={0.3} />
+                        ) : null}
+                        {ghostSvgAngle !== null && phase === "hour" ? (
+                          <Hand angle={ghostSvgAngle} len={65} color="#6C5CE7" w={7} op={0.3} />
+                        ) : null}
+                        {hHandSvg !== null ? <Hand angle={hHandSvg} len={65} color="#6C5CE7" w={7} /> : null}
+                        {mHandSvg !== null ? <Hand angle={mHandSvg} len={95} color="#00B894" w={4} /> : null}
+                        {result === "wrong" ? (
+                          <>
+                            <Hand angle={hDeg(time.h, time.m)} len={65} color="#FDCB6E" w={7} op={0.7} />
+                            <Hand angle={mDeg(time.m)} len={95} color="#FDCB6E" w={4} op={0.7} />
+                          </>
+                        ) : null}
+                      </ClockFace>
+                    </div>
+                  </section>
+
+                  <section className="game-right compact-panel">
+                    <div className="prompt-card">
+                      {tTxt(time.h, time.m)}
+                      <small>{digi(time.h, time.m)}</small>
+                    </div>
+
+                    {phaseLabel ? <div className="hint" style={{ color: phaseColor }}>{phaseLabel}</div> : null}
+
+                    <FeedbackBanner result={result} msg={msg} />
+                    {result ? (
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <Btn big onClick={go} color="#00B894">
+                          Next ➡️
+                        </Btn>
+                      </div>
+                    ) : null}
+                  </section>
+
+                  {result === "correct" ? <Confetti /> : null}
+                </div>
+              )}
+            </main>
+          </div>
+        );
+      }
+
+      function App() {
+        const [mode, setMode] = useState(null);
+        const [score, setScore] = useState(0);
+        const [streak, setStreak] = useState(0);
+        const [kidName, setKidName] = useState("");
+        const [nameDraft, setNameDraft] = useState("");
+
+        useEffect(() => {
+          try {
+            const savedName = window.localStorage.getItem("redpixie-clock-games.kid-name") || "";
+            if (savedName) {
+              setKidName(savedName);
+              setNameDraft(savedName);
+            }
+          } catch (_error) {
+          }
+        }, []);
+
+        const saveName = useCallback(() => {
+          const trimmed = nameDraft.trim();
+          if (!trimmed) return;
+          setKidName(trimmed);
+          try {
+            window.localStorage.setItem("redpixie-clock-games.kid-name", trimmed);
+          } catch (_error) {
+          }
+        }, [nameDraft]);
+
+        if (!mode) {
+          return (
+            <div className="app-shell">
+              <main className="screen">
+                <section className="panel menu-panel">
+                  <div className="hero-turtle" aria-hidden="true">
+                    🐢
+                  </div>
+                  <h1 className="title">{kidName ? `${kidName}'s Clock Challenge!` : "Redpixie Clock Games"}</h1>
+                  <p className="subtitle">
+                    {kidName
+                      ? `Help the turtle reach its lunch, ${kidName}, while learning to read and set the clock.`
+                      : "Start by entering the kid's name once. The browser will remember it on this device."}
+                  </p>
+
+                  {!kidName ? (
+                    <div className="name-card">
+                      <label className="sr-only" htmlFor="kid-name">
+                        Kid's name
+                      </label>
+                      <div className="name-row">
+                        <input
+                          id="kid-name"
+                          className="name-input"
+                          type="text"
+                          value={nameDraft}
+                          onChange={(e) => setNameDraft(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveName();
+                          }}
+                          placeholder="Kid's name"
+                          autoComplete="given-name"
+                          maxLength={40}
+                        />
+                        <Btn big onClick={saveName} color="#6C5CE7" dis={!nameDraft.trim()}>
+                          Save Name
+                        </Btn>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="name-card">
+                      <div className="score-line">Welcome back, {kidName}.</div>
+                      <div className="button-row">
+                        <Btn
+                          onClick={() => {
+                            setKidName("");
+                            setNameDraft("");
+                            try {
+                              window.localStorage.removeItem("redpixie-clock-games.kid-name");
+                            } catch (_error) {
+                            }
+                          }}
+                          color="#6C5CE7"
+                        >
+                          Change Name
+                        </Btn>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="menu-actions">
+                    <button
+                      type="button"
+                      className="mode-button read"
+                      onClick={() => setMode("read")}
+                      disabled={!kidName}
+                      style={!kidName ? { opacity: 0.6, cursor: "default" } : undefined}
+                    >
+                      🔍 Read the Clock
+                      <small>Look at the clock and pick the right time.</small>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="mode-button set"
+                      onClick={() => setMode("set")}
+                      disabled={!kidName}
+                      style={!kidName ? { opacity: 0.6, cursor: "default" } : undefined}
+                    >
+                      ✋ Set the Clock
+                      <small>Move the hands to show the right time.</small>
+                    </button>
+                  </div>
+
+                  {score > 0 ? <div className="score-line">⭐ Total score: {score} | 🔥 Current streak: {streak}</div> : null}
+                </section>
+              </main>
+            </div>
+          );
+        }
+
+        const props = { onBack: () => setMode(null), score, setScore, streak, setStreak };
+        return mode === "read" ? <ReadMode {...props} /> : <SetMode {...props} />;
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
