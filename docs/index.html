@@ -1287,13 +1287,13 @@
                   <p className="subtitle">
                     {kidName
                       ? `Help the turtle reach its lunch, ${kidName}, while learning to read and set the clock.`
-                      : "Start by entering the kid's name once. The browser will remember it on this device."}
+                      : "What's your name? The browser will remember it on this device."}
                   </p>
 
                   {!kidName ? (
                     <div className="name-card">
                       <label className="sr-only" htmlFor="kid-name">
-                        Kid's name
+                        What's your name?
                       </label>
                       <div className="name-row">
                         <input
@@ -1305,12 +1305,12 @@
                           onKeyDown={(e) => {
                             if (e.key === "Enter") saveName();
                           }}
-                          placeholder="Kid's name"
+                          placeholder="What's your name?"
                           autoComplete="given-name"
                           maxLength={40}
                         />
                         <Btn big onClick={saveName} color="#6C5CE7" dis={!nameDraft.trim()}>
-                          Save Name
+                          Let's Go
                         </Btn>
                       </div>
                     </div>
