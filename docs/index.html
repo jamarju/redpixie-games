@@ -452,22 +452,41 @@
       }
 
       .duration-layout {
-        width: min(100%, 1080px);
+        width: min(100%, 1160px);
         display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(250px, 340px);
+        grid-template-areas:
+          "header answer"
+          "clocks answer";
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .duration-header {
+        grid-area: header;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         gap: 14px;
       }
 
+      .duration-header .mode-heading {
+        text-align: center;
+      }
+
       .duration-clocks {
+        grid-area: clocks;
         display: grid;
         grid-template-columns: repeat(2, minmax(220px, 1fr));
-        gap: clamp(12px, 2vw, 22px);
-        align-items: start;
+        gap: 12px;
+        align-items: stretch;
       }
 
       .duration-clock-card {
         display: grid;
-        gap: 10px;
+        gap: 8px;
         justify-items: center;
+        align-content: start;
       }
 
       .duration-clock-label {
@@ -490,9 +509,11 @@
       }
 
       .duration-answer {
+        grid-area: answer;
         display: grid;
-        gap: 12px;
+        gap: 10px;
         justify-items: center;
+        align-content: center;
       }
 
       .duration-input-row {
@@ -504,9 +525,9 @@
       }
 
       .duration-input {
-        width: min(44vw, 150px);
-        min-width: 112px;
-        height: 76px;
+        width: min(36vw, 132px);
+        min-width: 104px;
+        height: 70px;
         border-radius: 22px;
         border: 4px solid rgba(255, 138, 61, 0.34);
         text-align: center;
@@ -527,6 +548,12 @@
         justify-content: center;
         gap: 8px;
         flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .duration-answer .prompt-card {
+        font-size: clamp(19px, 2.4vw, 25px);
+        padding: 10px 18px;
       }
 
       .choices {
@@ -1007,6 +1034,123 @@
         }
       }
 
+      @media (orientation: landscape) and (max-height: 900px) {
+        .app-shell {
+          padding:
+            max(10px, env(safe-area-inset-top))
+            max(14px, env(safe-area-inset-right))
+            max(10px, env(safe-area-inset-bottom))
+            max(14px, env(safe-area-inset-left));
+        }
+
+        .game-screen {
+          gap: 8px;
+        }
+
+        .duration-layout {
+          gap: 10px;
+        }
+
+        .duration-header,
+        .duration-answer,
+        .duration-clock-card {
+          padding: 12px;
+          border-radius: 18px;
+        }
+
+        .duration-header .mode-heading {
+          font-size: clamp(23px, 3vw, 32px);
+        }
+
+        .duration-clock-label {
+          padding: 7px 10px;
+          border-radius: 12px;
+          font-size: clamp(16px, 2vw, 21px);
+        }
+
+        .duration-clock-card .clock-frame {
+          width: min(100%, 260px);
+          padding: 8px;
+          border-radius: 18px;
+        }
+
+        .duration-answer .prompt-card {
+          width: 100%;
+          font-size: clamp(17px, 2vw, 21px);
+        }
+
+        .duration-input {
+          width: 116px;
+          height: 62px;
+          border-radius: 18px;
+          font-size: 34px;
+        }
+
+        .duration-input-row {
+          gap: 8px;
+        }
+
+        .duration-input-row div {
+          font-size: 25px !important;
+        }
+
+        .duration-answer .feedback {
+          padding: 10px 14px;
+          font-size: clamp(15px, 1.8vw, 18px);
+        }
+
+        .duration-answer .button-row {
+          gap: 8px;
+        }
+
+        .duration-answer .btn.big {
+          min-width: 130px;
+          padding: 12px 18px;
+          font-size: 17px;
+        }
+      }
+
+      @media (orientation: landscape) and (min-width: 760px) and (max-height: 760px) {
+        .duration-layout {
+          grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
+        }
+
+        .top-bar {
+          min-height: 34px;
+        }
+
+        .track {
+          height: 44px;
+        }
+
+        .cat {
+          width: 78px;
+          height: 78px;
+          bottom: -7px;
+        }
+
+        .mouse {
+          width: 62px;
+          height: 62px;
+          bottom: -5px;
+        }
+
+        .duration-clock-card .clock-frame {
+          width: min(100%, 220px);
+          padding: 6px;
+        }
+
+        .duration-answer .difficulty-row .btn {
+          padding: 9px 13px;
+          font-size: 15px;
+          border-width: 3px;
+        }
+
+        .duration-answer .prompt-card {
+          font-size: 18px;
+        }
+      }
+
       @media (max-width: 920px) {
         .game-layout {
           grid-template-columns: 1fr;
@@ -1018,6 +1162,18 @@
 
         .bonds-stats {
           grid-template-columns: 1fr;
+        }
+
+        .duration-layout {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "header"
+            "clocks"
+            "answer";
+        }
+
+        .duration-header .mode-heading {
+          white-space: normal;
         }
       }
 
@@ -2125,8 +2281,11 @@
                 </div>
               ) : (
                 <div className="duration-layout">
-                  <section className="compact-panel">
+                  <section className="compact-panel duration-header">
                     <h1 className="mode-heading">🐱 How long did it take?</h1>
+                  </section>
+
+                  <section className="compact-panel duration-answer">
                     <div className="difficulty-row" aria-label="Choose difficulty">
                       {["easy", "medium", "hard"].map((level) => (
                         <Btn
@@ -2139,31 +2298,7 @@
                         </Btn>
                       ))}
                     </div>
-                  </section>
 
-                  <section className="duration-clocks">
-                    <div className="duration-clock-card compact-panel">
-                      <div className="duration-clock-label start">Leaves school</div>
-                      <div className="clock-frame">
-                        <ClockFace roman={false}>
-                          <Hand angle={hDeg(question.start.h, question.start.m)} len={65} color="#6C5CE7" w={7} />
-                          <Hand angle={mDeg(question.start.m)} len={95} color="#00B894" w={4} />
-                        </ClockFace>
-                      </div>
-                    </div>
-
-                    <div className="duration-clock-card compact-panel">
-                      <div className="duration-clock-label end">Arrives home</div>
-                      <div className="clock-frame">
-                        <ClockFace roman={false}>
-                          <Hand angle={hDeg(question.end.h, question.end.m)} len={65} color="#6C5CE7" w={7} />
-                          <Hand angle={mDeg(question.end.m)} len={95} color="#00B894" w={4} />
-                        </ClockFace>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section className="compact-panel duration-answer">
                     <div className="prompt-card" style={{ background: "linear-gradient(135deg, #ff8a3d, #ffd166)" }}>
                       How many minutes did it take?
                     </div>
@@ -2207,6 +2342,28 @@
                           Next ➡️
                         </Btn>
                       ) : null}
+                    </div>
+                  </section>
+
+                  <section className="duration-clocks">
+                    <div className="duration-clock-card compact-panel">
+                      <div className="duration-clock-label start">Leaves school</div>
+                      <div className="clock-frame">
+                        <ClockFace roman={false}>
+                          <Hand angle={hDeg(question.start.h, question.start.m)} len={65} color="#6C5CE7" w={7} />
+                          <Hand angle={mDeg(question.start.m)} len={95} color="#00B894" w={4} />
+                        </ClockFace>
+                      </div>
+                    </div>
+
+                    <div className="duration-clock-card compact-panel">
+                      <div className="duration-clock-label end">Arrives home</div>
+                      <div className="clock-frame">
+                        <ClockFace roman={false}>
+                          <Hand angle={hDeg(question.end.h, question.end.m)} len={65} color="#6C5CE7" w={7} />
+                          <Hand angle={mDeg(question.end.m)} len={95} color="#00B894" w={4} />
+                        </ClockFace>
+                      </div>
                     </div>
                   </section>
 
